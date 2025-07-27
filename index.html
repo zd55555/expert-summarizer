@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="AI-powered meeting transcript analysis">
+    
+    <title>Meeting Transcript Analyzer</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWVldGluZyBUcmFuc2NyaXB0IEFuYWx5emVyIiwic2hvcnRfbmFtZSI6IlRyYW5zY3JpcHQgQUkiLCJkZXNjcmlwdGlvbiI6IkFJLXBvd2VyZWQgbWVldGluZyB0cmFuc2NyaXB0IGFuYWx5c2lzIiwic3RhcnRfdXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmOWZhZmIiLCJ0aGVtZV9jb2xvciI6IiMyNTYzZWIiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTWpRaUlHaGxhV2RvZEQwaU1qUWlJSFpwWlhkQ2IzZzlJakFnTUNBeU5DQXlOQ0lnWm1sc2JEMGlJekkxTmpObFlpSStQR05wY21Oc1pTQmplRDBpTVRJaUlHTjVQU0l4TWlJZ2NqMGlOaUlnWm1sc2JEMGlJMlptWmlJdlBqeDBaWGgwSUhnOUlqRXlJaUI1UFNJeE5pNDFJaUJtYVd4c1BTSWpNalUyTTJWaUlpQm1iMjUwTFdaaGJXbHNlVDBpYlc5dWIzTndZV05sSWlCbWIyNTBMWE5wZW1VOUlqRXdJaUIwWlhoMExXRnVZMmh2Y2owaWJXbGtaR3hsSWo0NFBDOTBaWGgwUGp3dmMzWm5QZz09Iiwic2l6ZXMiOiIyNHgyNCIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    
+    <!-- Icons -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzI1NjNlYiI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNiIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjEyIiB5PSIxNi41IiBmaWxsPSIjMjU2M2ViIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BSTwvdGV4dD48L3N2Zz4=">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            min-height: calc(100vh - 2rem);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        textarea {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 200px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-content {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .copy-btn {
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+
+        .copy-btn:hover {
+            background: #047857;
+        }
+
+        .expert-btn {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expert-btn:hover {
+            background: #6d28d9;
+        }
+
+        .clear-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .clear-btn:hover {
+            background: #4b5563;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+                border-radius: 12px;
+                min-height: calc(100vh - 1rem);
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            textarea {
+                min-height: 150px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .submit-btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .actions {
+                gap: 0.5rem;
+            }
+
+            .actions:first-of-type {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* PWA install prompt */
+        .install-prompt {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        .install-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="install-prompt" id="installPrompt">
+            <span>📱 Install this app on your phone for easier access!</span>
+            <button class="install-btn" id="installBtn">Install</button>
+        </div>
+
+        <div class="header">
+            <h1>🤖 Meeting Transcript Analyzer</h1>
+            <p>Paste your transcript and get AI-powered insights instantly</p>
+        </div>
+
+        <div class="input-section">
+            <div class="form-group">
+                <label for="transcript">Meeting Transcript</label>
+                <textarea 
+                    id="transcript" 
+                    placeholder="Paste your meeting transcript here... 
+
+Example: 
+- John mentioned the Q4 goals
+- Sarah raised concerns about the timeline  
+- We agreed to follow up next week"
+                    maxlength="10000"
+                ></textarea>
+                <div class="char-counter">
+                    <span id="charCount">0</span> / 10,000 characters
+                </div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn">
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                <span id="btnText">✨ Analyze Transcript</span>
+            </button>
+
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h3>📊 AI Analysis</h3>
+            <div class="results-content" id="resultsContent"></div>
+            <div class="actions">
+                <button class="copy-btn" id="copyBtn">📋 Copy Analysis</button>
+                <button class="expert-btn" id="expertBtn">🤖 Open Expert Chat</button>
+            </div>
+            <div class="actions">
+                <button class="clear-btn" id="clearBtn">🗑️ New Analysis</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const transcriptTextarea = document.getElementById('transcript');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const btnText = document.getElementById('btnText');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsContent = document.getElementById('resultsContent');
+        const charCount = document.getElementById('charCount');
+        const copyBtn = document.getElementById('copyBtn');
+        const expertBtn = document.getElementById('expertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        // Character counter
+        transcriptTextarea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+            
+            if (count > 9500) {
+                charCount.style.color = '#dc2626';
+            } else if (count > 8000) {
+                charCount.style.color = '#f59e0b';
+            } else {
+                charCount.style.color = '#6b7280';
+            }
+        });
+
+        // Submit handler
+        submitBtn.addEventListener('click', async function() {
+            const transcript = transcriptTextarea.value.trim();
+            
+            if (!transcript) {
+                showError('Please paste a transcript first!');
+                return;
+            }
+
+            if (transcript.length < 50) {
+                showError('Transcript seems too short. Please provide a more detailed transcript.');
+                return;
+            }
+
+            // Start loading state
+            setLoading(true);
+            hideError();
+            hideResults();
+
+            try {
+                // TODO: Replace with actual N8n webhook call
+                const analysis = await simulateAnalysis(transcript);
+                showResults(analysis);
+            } catch (error) {
+                showError('Failed to analyze transcript. Please try again.');
+                console.error('Analysis error:', error);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Simulate analysis (replace with N8n call later)
+        async function simulateAnalysis(transcript) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Simple formatted response - N8n will handle the real formatting
+            const wordCount = transcript.split(' ').length;
+            return `MEETING SUMMARY
+This ${wordCount}-word transcript covers key discussion points and decisions. The main themes include strategic planning, timeline considerations, and stakeholder alignment.
+
+KEY INSIGHTS  
+• Communication patterns suggest strong team collaboration
+• Decision-making process appears structured and inclusive
+• Timeline concerns indicate need for better project planning
+• Stakeholder buy-in seems positive overall
+
+ACTION ITEMS
+• Follow up on timeline concerns by next Friday
+• Schedule stakeholder review meeting  
+• Document decisions and share with team
+• Prepare progress update for next meeting
+
+EXPERT RECOMMENDATIONS
+• Consider implementing a structured agenda for future meetings
+• Establish clear decision criteria for complex topics
+• Set up regular check-ins to monitor progress
+• Create shared documentation for ongoing reference`;
+        }
+
+        // Copy to clipboard
+        copyBtn.addEventListener('click', async function() {
+            try {
+                await navigator.clipboard.writeText(resultsContent.textContent);
+                copyBtn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = '📋 Copy Analysis';
+                }, 2000);
+            } catch (error) {
+                console.error('Copy failed:', error);
+            }
+        });
+
+        // Open expert chat
+        expertBtn.addEventListener('click', function() {
+            // TODO: Replace with your Custom GPT URL
+            const customGptUrl = 'https://chatgpt.com/g/YOUR_CUSTOM_GPT_ID';
+            window.open(customGptUrl, '_blank');
+        });
+
+        // Clear results
+        clearBtn.addEventListener('click', function() {
+            transcriptTextarea.value = '';
+            charCount.textContent = '0';
+            hideResults();
+            hideError();
+            transcriptTextarea.focus();
+        });
+
+        // Utility functions
+        function setLoading(isLoading) {
+            submitBtn.disabled = isLoading;
+            loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+            btnText.textContent = isLoading ? 'Analyzing...' : '✨ Analyze Transcript';
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        function showResults(analysis) {
+            resultsContent.textContent = analysis;
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideResults() {
+            resultsSection.classList.remove('show');
+        }
+
+        // PWA install prompt
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installPrompt.classList.add('show');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installPrompt.classList.remove('show');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // Service worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4ge30pOwoKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGV2ZW50ID0+IHsKICBldmVudC5yZXNwb25kV2l0aChmZXRjaChldmVudC5yZXF1ZXN0KSk7Cn0pOw==')
+                .then(() => console.log('SW registered'))
+                .catch(() => console.log('SW registration failed'));
+        }
+
+        // Focus textarea on load
+        window.addEventListener('load', () => {
+            transcriptTextarea.focus();
+        });
+
+        // Handle paste events
+        transcriptTextarea.addEventListener('paste', function() {
+            setTimeout(() => {
+                this.dispatchEvent(new Event('input'));
+            }, 10);
+        });
+    </script>
+</body>
+</html>
